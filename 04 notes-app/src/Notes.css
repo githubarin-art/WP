@@ -1,0 +1,148 @@
+/* *{
+    margin: 0;
+    padding: 0;
+    background: #383838;
+}
+.notes{
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    margin-bottom: 20rem;
+}
+button{
+    width: 10vw;
+    padding: 10px;
+    font-size: 1.2rem;
+}
+.display{
+    border: 2px solid white;
+    width: 60vw;
+    height: 40vh;
+    position: absolute;
+    top: 25rem;
+    left: 300px;
+    text-align: left;
+}
+#second{
+    text-align: center;
+} */
+/* Global Styles */
+/* Global Styles */
+/* Global Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box; /* Ensures padding and border are included in element's total width and height */
+}
+
+body {
+    background: #383838; /* Dark background for the app */
+    font-family: 'Arial', sans-serif; /* Set a clean font */
+}
+
+/* Notes Container */
+.notes {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center align items */
+    margin: 2rem auto; /* Center the notes container */
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.1); /* Semi-transparent background */
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); /* Shadow for depth */
+    width: 80%; /* Set a width for the notes container */
+}
+
+/* Title Styles */
+#first {
+    color: white; /* Title color */
+    margin-bottom: 1rem; /* Space below title */
+}
+
+/* Textarea Styles */
+textarea {
+    width: 100%; /* Full width */
+    height: 100px; /* Fixed height */
+    padding: 10px; /* Padding inside textarea */
+    border: none; /* Remove default border */
+    border-radius: 5px; /* Rounded corners */
+    resize: none; /* Disable resizing */
+    font-size: 1rem; /* Font size */
+    background: rgba(255, 255, 255, 0.2); /* Light background */
+    color: white; /* Text color */
+    outline: none; /* Remove outline */
+    margin-bottom: 1rem; /* Space below textarea */
+}
+
+/* Button Styles */
+button {
+    width: 100px; /* Fixed width */
+    padding: 10px; /* Padding */
+    font-size: 1.2rem; /* Font size */
+    color: white; /* Text color */
+    background: #007BFF; /* Button background color */
+    border: none; /* Remove border */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background 0.3s ease; /* Smooth background transition */
+    margin-top: 1rem; /* Space above button */
+}
+
+button:hover {
+    background: #0056b3; /* Darker shade on hover */
+}
+
+/* Display Section */
+.display {
+    height: 40vh;
+    border: 2px solid white; /* White border */
+    width: 60vw; /* Width of the display */
+    margin: 2rem auto; /* Center the display */
+    padding: 1rem; /* Padding inside display */
+    border-radius: 10px; /* Rounded corners */
+    background: rgba(255, 255, 255, 0.1); /* Semi-transparent background */
+    color: white; /* Text color */
+    overflow-y: auto; /* Scroll if content overflows */
+}
+
+/* Title Styles for Display */
+#second {
+    color: white; /* Title color */
+    margin-bottom: 1rem; /* Space below title */
+}
+
+/* Display List Styles */
+.display ul {
+    list-style-type: none; /* Remove bullet points */
+    padding: 0; /* Remove padding */
+}
+
+.display li {
+    margin: 0.5rem 0; /* Space between list items */
+}
+
+/* Edit Button Styles */
+#edit {
+    width: 100px; /* Fixed width */
+    padding: 10px; /* Padding */
+    font-size: 1.2rem; /* Font size */
+    color: white; /* Text color */
+    background: #28a745; /* Green background for edit button */
+    border: none; /* Remove border */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background 0.3s ease; /* Smooth background transition */
+    margin: 1rem auto; /* Center the edit button */
+    display: block; /* Make it a block element for centering */
+}
+
+#edit:hover {
+    background: #218838; /* Darker shade on hover */
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .notes, .display {
+        width: 90vw; /* Adjust width for smaller screens */
+    }
+}
