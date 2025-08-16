@@ -70,25 +70,39 @@ function App() {
     setUserAnswer("");
     setIsSubmitted(false);
     setMessage("");
+    setIsInfo(null);
   };
 
   const InFoFetchedWikipedia= async (query)=>{
     setIsInfoLoading(true);
+    setIsInfo(null);
     try {
-      const apiurl=`https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exchars=500&titles=${encodeURIComponent(query)}&format=json&origin=*`;
-      const res= await fetch(apiurl);
+      const apiUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(
+        query
+      )}&format=json&origin=*&prop=extracts&exchars=500&explaintext`;
+      const res= await fetch(apiUrl);
       const data= await res.json();
-      const pages= data.query.pages;
-      const pageId= Object.keys(pages)[0];
+      if(data.query.search.length>0)
+      {
+        const firstResultTitle=data.query.search[0].title;
+        const extractUrl=`https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exchars=500&titles=${encodeURIComponent(firstResultTitle)}&format=json&origin=*&explaintext`;
+
+        const extractRes= await fetch(extractUrl);
+        const extractData= await extractRes.json();
+
+        const extractPages=extractData.query.pages;
+        const pageId= Object.keys(extractPages)[0];
 
 
-      if(pageId && pages[pageId].extract){
-        const extractDiv=document.createElement("div");
-        extractDiv.innerHTML=pages[pageId].extract;
-        setIsInfo(extractDiv.textContent);
+        if(pageId && extractPages[pageId].extract){
+        setIsInfo(extractPages[pageId].extract);
+        }
+        else{
+          setIsInfo("No  detailed information available on Wikipedia.");
+        }
       }
       else{
-        setIsInfo("No information available.");
+        setIsInfo("No information available on Wikipedia.");
       }
       
     } catch (error) {
@@ -119,7 +133,7 @@ function App() {
       setMessage(
         `❌ Incorrect! The correct answer is ${ques[currentIndex].answer}.`
       );
-      InFoFetchedWikipedia(ques[currentIndex].answer)
+      InFoFetchedWikipedia(ques[currentIndex].question)
     }
   };
 
