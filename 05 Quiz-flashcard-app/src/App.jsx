@@ -199,7 +199,7 @@ function App() {
                     {isInfoLoading ? (
                       <p className="animate-pulse">Loading additional info...</p>
                     ) : (
-                      <p>{info}</p>
+                      <p>{isInfo}</p>
                     )}
                   </div>
                 )}
