@@ -1,21 +1,18 @@
 import { useState, useEffect, useRef } from "react";
-import "./index.css";
+
 
 function App() {
-  const paragraphRef = useRef(null);
-  const winningRef = useRef(null);
-  const headingRef = useRef(null);
-
   const [score, setScore] = useState(0);
   const [ques, setQues] = useState([]);
   const [userAnswer, setUserAnswer] = useState("");
-  const [isEditing, setIsEditing] = useState(false);
-  const [showAnswer, setShowAnswer] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [answerDisabled, setAnswerDisabled] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const [isWinner, setIsWinner] = useState(false);
+  const [message, setMessage] = useState("");
+  const [isInfo,setIsInfo]=useState(null);
+  const [isInfoLoading, setIsInfoLoading]=useState(false);
   const decodeHtml = (html) => {
     const txt = document.createElement("textarea");
     txt.innerHTML = html;
@@ -51,36 +48,58 @@ function App() {
     };
     fetchQuestions();
   }, []);
+  useEffect(() => {
+    if (score === 10) setIsWinner(true);
+  }, [score]);
 
   const handleNextQuestion = () => {
     if (currentIndex < ques.length - 1) {
-      setCurrentIndex(currentIndex + 1);
+      setCurrentIndex((prevIndex)=> prevIndex + 1);
       resetForNewQuestion();
     }
   };
 
   const handlePreviousQuestion = () => {
     if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
+      setCurrentIndex((prevIndex)=> prevIndex - 1);
       resetForNewQuestion();
     }
   };
 
   const resetForNewQuestion = () => {
-    setShowAnswer(false);
     setUserAnswer("");
-    setIsEditing(false);
-    setAnswerDisabled(false);
+    setIsSubmitted(false);
+    setMessage("");
   };
 
-  const ToDisplayAnswer = () => {
-    setShowAnswer(true);
-    headingRef.current.textContent = `Question ${ques[currentIndex].index}`;
-    paragraphRef.current.textContent = ques[currentIndex].answer;
-    setUserAnswer("");
-    setIsEditing(true);
-    setAnswerDisabled(true);
-  };
+  const InFoFetchedWikipedia= async (query)=>{
+    setIsInfoLoading(true);
+    try {
+      const apiurl=`https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exchars=500&titles=${encodeURIComponent(query)}&format=json&origin=*`;
+      const res= await fetch(apiurl);
+      const data= await res.json();
+      const pages= data.query.pages;
+      const pageId= Object.keys(pages)[0];
+
+
+      if(pageId && pages[pageId].extract){
+        const extractDiv=document.createElement("div");
+        extractDiv.innerHTML=pages[pageId].extract;
+        setIsInfo(extractDiv.textContent);
+      }
+      else{
+        setIsInfo("No information available.");
+      }
+      
+    } catch (error) {
+      console.error("OOPS!! Error in fetching data from Wikipedia..", error);
+      setIsInfo("Failed to fetch data from Wikipedia.");
+      
+    }
+    finally{
+      setIsInfoLoading(false);
+    }
+  }
 
   const UserInput = (event) => {
     setUserAnswer(event.target.value);
@@ -88,26 +107,21 @@ function App() {
 
   const handleChangeSubmit = (event) => {
     event.preventDefault();
+    setIsSubmitted(true);
+    const isCorrect = userAnswer.trim().toLowerCase() === ques[currentIndex].answer.toLowerCase();
     if (
-      userAnswer.trim().toLowerCase() ===
-      ques[currentIndex].answer.toLowerCase()
+      isCorrect
     ) {
-      alert("✅ Correct!");
+      setMessage("✅ Correct!");
       setScore((prev) => prev + 1);
+      InFoFetchedWikipedia(ques[currentIndex].answer)
     } else {
-      alert(
+      setMessage(
         `❌ Incorrect! The correct answer is ${ques[currentIndex].answer}.`
       );
+      InFoFetchedWikipedia(ques[currentIndex].answer)
     }
-
-    setIsEditing(false);
-    setShowAnswer(false);
-    setAnswerDisabled(false);
   };
-
-  if (score === 10 && winningRef.current) {
-    winningRef.current.textContent = "🎉 You have won!";
-  }
 
   if (loading) {
     return (
@@ -117,13 +131,14 @@ function App() {
     );
   }
 
-  if (error) {
-    return (
-      <div className="p-8 text-center text-red-500 font-medium text-lg">
-        {error}
-      </div>
-    );
-  }
+  if (error)
+    {
+      return (
+        <div className="p-8 text-center text-red-500 font-medium text-lg">
+          {error}
+        </div>
+      );
+    }
 
   return (
     <div className="w-full flex flex-col items-center p-6 bg-gradient-to-br from-gray-50 to-gray-200 min-h-screen">
@@ -132,54 +147,62 @@ function App() {
           🚀 Modern Quiz App
         </h1>
         <div id="question-box" className="space-y-6">
-          <div
-            ref={winningRef}
-            className="h-auto bg-white shadow-md rounded-xl p-6 border border-gray-100 transition-all"
-          >
+          {isWinner && (
+            <div className="text-center text-3xl font-bold text-green-600 my-4">
+              🎉 Congratulations, you won!
+            </div>
+          )}
+
+          <div className="h-auto bg-white shadow-md rounded-xl p-6 border border-gray-100 transition-all">
             <h1 className="text-lg font-semibold text-gray-700 mb-4">
               Question & Answer Box
             </h1>
+            
             {ques.length > 0 && (
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-all duration-300">
-                <h2
-                  ref={headingRef}
-                  className="text-lg font-bold text-gray-800 mb-2"
-                >
+                <h2 className="text-lg font-bold text-gray-800 mb-2">
                   Question {ques[currentIndex].index}
                 </h2>
-                <p
-                  ref={paragraphRef}
-                  className="text-gray-700 leading-relaxed"
-                >
-                  {showAnswer ? (
-                    isEditing ? (
-                      <form
-                        onSubmit={handleChangeSubmit}
-                        className="flex flex-col sm:flex-row gap-3"
-                      >
-                        <input
-                          type="text"
-                          value={userAnswer}
-                          onChange={UserInput}
-                          placeholder="Type your answer"
-                          className="flex-1 p-3 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        />
-                        <button
-                          type="submit"
-                          className="bg-indigo-500 hover:bg-indigo-600 text-white py-2 px-6 rounded-lg shadow-md transition-all duration-300"
-                        >
-                          Submit
-                        </button>
-                      </form>
-                    ) : (
-                      <span className="font-semibold text-green-600">
-                        {ques[currentIndex].answer}
-                      </span>
-                    )
-                  ) : (
-                    ques[currentIndex].question
-                  )}
+                <p className="text-gray-700 leading-relaxed">
+                  {ques[currentIndex].question}
                 </p>
+                <div className="mt-4">
+                  <form onSubmit={handleChangeSubmit} className="flex flex-col sm:flex-row gap-3">
+                    <input
+                      type="text"
+                      value={userAnswer}
+                      onChange={UserInput}
+                      disabled={isSubmitted}
+                      placeholder="Type your answer"
+                      className="flex-1 p-3 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-200"
+                    />
+                    <button
+                      type="submit"
+                      disabled={isSubmitted}
+                      className={`py-2 px-6 rounded-lg shadow-md transition-all duration-300 ${
+                        isSubmitted
+                          ? "bg-gray-300 cursor-not-allowed"
+                          : "bg-indigo-500 hover:bg-indigo-600 text-white"
+                      }`}
+                    >
+                      Submit
+                    </button>
+                  </form>
+                </div>
+                {message && (
+                  <div className="mt-4 p-3 rounded-lg text-center font-semibold text-white bg-indigo-500">
+                    {message}
+                  </div>
+                )}
+                {isSubmitted && (
+                  <div className="mt-4 p-3 rounded-lg bg-gray-200 text-gray-700 font-medium">
+                    {infoLoading ? (
+                      <p className="animate-pulse">Loading additional info...</p>
+                    ) : (
+                      <p>{info}</p>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 
@@ -209,17 +232,6 @@ function App() {
                 }`}
               >
                 Next ➡
-              </button>
-              <button
-                onClick={ToDisplayAnswer}
-                disabled={answerDisabled}
-                className={`py-2 px-5 rounded-lg border-none transition-all ${
-                  answerDisabled
-                    ? "bg-gray-300 cursor-not-allowed"
-                    : "bg-pink-500 hover:bg-pink-600 text-white shadow-md"
-                }`}
-              >
-                💡 Show Answer
               </button>
             </div>
           </div>
