@@ -510,7 +510,6 @@ function useQuizLogic() {
     if (isCorrect) {
       setMessage("✅ Correct!");
       setScore((prev) => prev + 1);
-      setAnsweredQuestions(prevSet => new Set(prevSet.add(currentIndex)));
       infoText = await fetchWikipediaInfo(ques[currentIndex].answer, ques[currentIndex].question);
     } else {
       setMessage(
@@ -518,6 +517,9 @@ function useQuizLogic() {
       );
       infoText = await fetchWikipediaInfo(ques[currentIndex].answer, ques[currentIndex].question);
     }
+    
+    // This line was moved here. It will now run after every submission.
+    setAnsweredQuestions(prevSet => new Set(prevSet.add(currentIndex)));
 
     const newAttempt = {
       questionIndex: currentIndex,
