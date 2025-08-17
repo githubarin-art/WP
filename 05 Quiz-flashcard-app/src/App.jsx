@@ -136,7 +136,6 @@ function App() {
       if (data.query.search.length > 0) {
         const firstResultTitle = data.query.search[0].title;
         const extractUrl = `https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exchars=500&titles=${encodeURIComponent(firstResultTitle)}&format=json&origin=*&explaintext`;
-
         const extractRes = await fetch(extractUrl);
         const extractData = await extractRes.json();
         const extractPages = extractData.query.pages;
@@ -167,7 +166,9 @@ function App() {
   const handleSubmit = (event) => {
     event.preventDefault();
     setIsSubmitted(true);
-    const isCorrect = userAnswer.trim().toLowerCase() === ques[currentIndex].answer.toLowerCase();
+    const isCorrect = 
+        normalizedUserAnswer === normalizedCorrectAnswer ||
+        normalizedUserAnswer === normalizedCorrectAnswer.replace(/^the\s/, '');
 
     const newAttempt = {
       questionIndex: currentIndex,
