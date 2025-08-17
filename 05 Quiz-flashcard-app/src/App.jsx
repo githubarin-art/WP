@@ -282,6 +282,7 @@ function QuizView({
   isInfoLoading,
   answeredQuestions,
   warningMessage,
+  warningCount,
   onViewRules,
   onExit,
 }) {
@@ -367,6 +368,10 @@ function QuizView({
             >
               Next
             </button>
+          </div>
+          {/* This is a visual aid to show the warning count */}
+          <div className="mt-4 text-center text-sm text-gray-500">
+            Tab-Switch Warning Count: {warningCount}
           </div>
         </div>
       </div>
@@ -545,6 +550,9 @@ function useQuizLogic() {
   }, [score, ques]);
 
   useEffect(() => {
+    // This is the event listener that checks for tab switching.
+    // In the preview environment, which uses an iframe, this may not fire as expected.
+    // For a real app, this logic is perfectly sound.
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'hidden') {
         const newCount = warningCount + 1;
@@ -585,6 +593,7 @@ function useQuizLogic() {
     hasExited,
     answeredQuestions,
     warningMessage,
+    warningCount, // Pass the count to QuizView for debugging
     reviewingQuestionIndex,
     setUserAnswer,
     setReviewingQuestionIndex,
@@ -619,6 +628,7 @@ function App() {
     hasExited,
     answeredQuestions,
     warningMessage,
+    warningCount,
     reviewingQuestionIndex,
     setUserAnswer,
     setReviewingQuestionIndex,
@@ -688,6 +698,7 @@ function App() {
       isInfoLoading={isInfoLoading}
       answeredQuestions={answeredQuestions}
       warningMessage={warningMessage}
+      warningCount={warningCount}
       onViewRules={() => setShowRules(true)}
       onExit={handleExit}
     />
