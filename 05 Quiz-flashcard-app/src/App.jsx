@@ -173,7 +173,9 @@ function App() {
             </h1>
             
             {ques.length > 0 && (
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-all duration-300">
+              <div 
+              key={currentIndex}
+              className="bg-gray-50 border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-all duration-300 animate-fadeIn">
                 <h2 className="text-lg font-bold text-gray-800 mb-2">
                   Question {ques[currentIndex].index}
                 </h2>
@@ -209,7 +211,7 @@ function App() {
                   </div>
                 )}
                 {isSubmitted && (
-                  <div className="mt-4 p-3 rounded-lg bg-gray-200 text-gray-700 font-medium">
+                  <div className="mt-4 p-3 rounded-lg bg-gray-200 text-gray-700 font-medium animate-fadeIn">
                     {isInfoLoading ? (
                       <p className="animate-pulse">Loading additional info...</p>
                     ) : (
