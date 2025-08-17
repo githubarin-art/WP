@@ -19,6 +19,11 @@ const QUIZ_RULES = [
   "You can navigate through questions using the 'Next' and 'Previous' buttons.",
   "Your score is calculated based on correct answers.",
   "Additional information about the answer will be shown after submission.",
+  "You Cannot go back to a question once you have submitted it.",
+  "You will be shown your final score at the end of the quiz.",
+  "You cannot switch between tabs once the quiz has started.",
+  "If the Switch Count reached 3 , the quiz will end.",
+  "You will be shown a summary of your answers at the end of the quiz.",
 ];
 const MAX_TAB_WARNING = 3;
 
