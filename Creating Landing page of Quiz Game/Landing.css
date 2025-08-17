@@ -1,0 +1,215 @@
+/* Base reset and typography */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  background-color: #f3f4f6; /* gray-100 */
+  color: #374151;
+  line-height: 1.5;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.container {
+  width: 100vw;
+  padding: 2rem 5vw 4rem;
+  background-color: white;
+  text-align: center;
+  border-radius: 1.5rem; /* rounded-3xl */
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border: 1px solid #e5e7eb;
+  box-sizing: border-box;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Fade-in animation initial state */
+.fade-in-section {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  will-change: opacity, transform;
+}
+
+/* Fade-in animation visible state */
+.fade-in-section.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Titles */
+h1.title {
+  font-weight: 800;
+  font-size: 3rem;
+  color: #4338ca; /* indigo-700 */
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  margin-bottom: 0.5rem;
+}
+
+p.subtitle {
+  font-weight: 300;
+  font-size: 1.5rem;
+  color: #718096; /* gray-600 */
+  margin-bottom: 2rem;
+}
+
+/* About section */
+section.about h2 {
+  font-weight: 700;
+  font-size: 1.875rem;
+  color: #2d3748; /* gray-800 */
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+section.about p {
+  font-size: 1.25rem;
+  color: #4a5568; /* gray-700 */
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 4rem;
+  line-height: 1.625;
+  text-align: center;
+}
+
+/* Features and Technology layout */
+.features-tech {
+  display: flex;
+  gap: 3rem;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin-bottom: 4rem;
+  max-width: 100%;
+}
+
+.features,
+.technology {
+  flex-basis: 45%;
+  text-align: left;
+}
+
+/* Section titles */
+.section-title {
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: #2d3748; /* gray-800 */
+  margin-bottom: 1.5rem;
+}
+
+/* Icon spacing */
+.section-title svg {
+  margin-right: 0.75rem;
+  height: 2rem;
+  width: 2rem;
+  color: #4338ca; /* indigo-600 */
+}
+
+/* Lists */
+.features ul,
+.technology ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.features li {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 1.6rem;
+}
+
+.features li svg {
+  margin-right: 1rem;
+  margin-top: 0.25rem;
+  height: 1.5rem;
+  width: 1.5rem;
+  flex-shrink: 0;
+}
+
+.features li strong {
+  font-weight: 600;
+  font-size: 1.125rem;
+  color: #2d3748;
+  display: block;
+}
+
+.features li p {
+  font-size: 0.875rem;
+  color: #718096;
+  margin: 0;
+}
+
+.technology li {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.25rem;
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.tech-pill {
+  background-color: #e5e7eb;
+  color: #4b5563;
+  font-weight: 600;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  margin-right: 1rem;
+  min-width: 75px;
+  text-align: center;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.technology li span:not(.tech-pill) {
+  flex: 1;
+}
+
+/* Start button */
+a.start-button {
+  display: block;
+  margin: 3rem auto 0 auto;
+  background-color: #4338ca;
+  color: white;
+  padding: 1.25rem 4rem;
+  font-weight: 700;
+  font-size: 1.5rem;
+  border-radius: 9999px;
+  box-shadow: 0 6px 15px rgba(67, 56, 202, 0.6);
+  text-decoration: none;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  user-select: none;
+  text-align: center;
+  max-width: fit-content;
+}
+
+a.start-button:hover,
+a.start-button:focus {
+  background-color: #3730a3;
+  outline: none;
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(55, 48, 163, 0.8);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .features-tech {
+    flex-direction: column;
+  }
+  .features,
+  .technology {
+    flex-basis: 100%;
+  }
+  .section-title {
+    justify-content: center;
+  }
+}
