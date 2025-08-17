@@ -70,12 +70,12 @@ function App() {
   }, [score]);
 
   const handleNextQuestion = () => {
-    if (currentIndex < ques.length - 1) {
-      setCurrentIndex((prevIndex)=> prevIndex + 1);
-      resetForNewQuestion();
-    }
-    else {
+    if(currentIndex === ques.length - 1){
       setIsQuizComplete(true);
+    }
+    else{
+      setCurrentIndex((prevIndex) => prevIndex + 1);
+      resetForNewQuestion();
     }
   };
   
@@ -347,14 +347,9 @@ function App() {
                 </button>
                 <button
                   onClick={handleNextQuestion}
-                  disabled={currentIndex === ques.length - 1}
-                  className={`py-2 px-5 rounded-lg transition-all ${
-                    currentIndex === ques.length - 1
-                      ? "bg-gray-300 cursor-not-allowed"
-                      : "bg-indigo-500 hover:bg-indigo-600 text-white shadow-md"
-                  }`}
+                  className="py-2 px-5 rounded-lg transition-all bg-indigo-500 hover:bg-indigo-600 text-white shadow-md"
                 >
-                  Next ➡
+                  {currentIndex === ques.length - 1 ? "Show Results 🏆" : "Next ➡"}
                 </button>
               </div>
             </div>
