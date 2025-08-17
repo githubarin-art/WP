@@ -213,7 +213,7 @@ function App() {
                 {isSubmitted && (
                   <div className="mt-4 p-3 rounded-lg bg-gray-200 text-gray-700 font-medium animate-fadeIn">
                     {isInfoLoading ? (
-                      <p className="animate-pulse">Loading additional info...</p>
+                      <p className=" animate-fadeIn">Loading additional info...</p>
                     ) : (
                       <p>{isInfo}</p>
                     )}
