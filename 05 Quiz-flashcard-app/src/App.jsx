@@ -13,11 +13,16 @@ function App() {
   const [message, setMessage] = useState("");
   const [isInfo,setIsInfo]=useState(null);
   const [isInfoLoading, setIsInfoLoading]=useState(false);
+  const [showRules,setshowRules]=useState(true);
   const decodeHtml = (html) => {
     const txt = document.createElement("textarea");
     txt.innerHTML = html;
     return txt.value;
   };
+  
+  const toggleRules=()=>{
+    setshowRules(!showRules);
+  }
 
   useEffect(() => {
     const fetchQuestions = async () => {
@@ -160,6 +165,38 @@ function App() {
         <h1 className="text-4xl font-extrabold text-center text-indigo-600 mb-6 tracking-tight">
           🚀 Modern Quiz App
         </h1>
+        {showRules && (
+          <div className="fixed inset-0 bg-gray-900 bg-opacity-75 flex justify-center items-center z-50 animate-fadeIn">
+            <div className="bg-white p-8 rounded-lg shadow-2xl w-full max-w-md mx-4 transform scale-100 animate-slideUp">
+              <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">
+                Game Rules 📝
+              </h2>
+              <ul className="list-disc list-inside text-gray-700 space-y-2">
+                <li>
+                  You will be presented with a series of 10 questions.
+                </li>
+                <li>
+                  Type your answer in the input box and click "Submit".
+                </li>
+                <li>
+                  You can navigate through questions using the "Next" and "Previous" buttons.
+                </li>
+                <li>
+                  Your score is calculated based on correct answers.
+                </li>
+                <li>
+                  Additional information about the answer will be shown after submission.
+                </li>
+              </ul>
+              <button
+                onClick={toggleRules}
+                className="mt-6 w-full py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 transition-colors"
+              >
+                Start Quiz!
+              </button>
+            </div>
+          </div>
+        )}
         <div id="question-box" className="space-y-6">
           {isWinner && (
             <div className="text-center text-3xl font-bold text-green-600 my-4">
@@ -213,7 +250,7 @@ function App() {
                 {isSubmitted && (
                   <div className="mt-4 p-3 rounded-lg bg-gray-200 text-gray-700 font-medium animate-fadeIn">
                     {isInfoLoading ? (
-                      <p className=" animate-fadeIn">Loading additional info...</p>
+                      <p className=" animate-pulse">Loading additional info...</p>
                     ) : (
                       <p>{isInfo}</p>
                     )}
