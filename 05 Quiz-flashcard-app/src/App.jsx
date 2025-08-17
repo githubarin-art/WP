@@ -166,6 +166,8 @@ function App() {
   const handleSubmit = (event) => {
     event.preventDefault();
     setIsSubmitted(true);
+    const normalizedUserAnswer = userAnswer.trim().toLowerCase();
+    const normalizedCorrectAnswer = ques[currentIndex].answer.toLowerCase();
     const isCorrect = 
         normalizedUserAnswer === normalizedCorrectAnswer ||
         normalizedUserAnswer === normalizedCorrectAnswer.replace(/^the\s/, '');
