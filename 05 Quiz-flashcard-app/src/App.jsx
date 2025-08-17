@@ -7,79 +7,90 @@ const QUIZ_RULES = [
   "Your score is calculated based on correct answers.",
   "Additional information about the answer will be shown after submission.",
 ];
+
 function App() {
+  // State for quiz logic
   const [score, setScore] = useState(0);
   const [ques, setQues] = useState([]);
   const [userAnswer, setUserAnswer] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isQuizComplete, setIsQuizComplete] = useState(false);
+  const [userAttempts, setUserAttempts] = useState([]);
+  const [isWinner, setIsWinner] = useState(false);
+
+  // State for UI/API
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isWinner, setIsWinner] = useState(false);
   const [message, setMessage] = useState("");
-  const [isInfo,setIsInfo]=useState(null);
-  const [isInfoLoading, setIsInfoLoading]=useState(false);
-  const [showRules,setshowRules]=useState(true);
-  const [userAttempts,setUserAttempts]=useState([]);
-  const [isQuizComplete, setIsQuizComplete]=useState(false);
+  const [isInfo, setIsInfo] = useState(null);
+  const [isInfoLoading, setIsInfoLoading] = useState(false);
+  const [showRules, setshowRules] = useState(true);
+
+  // Utility function to decode HTML entities from API
   const decodeHtml = (html) => {
     const txt = document.createElement("textarea");
     txt.innerHTML = html;
     return txt.value;
   };
-  
-  const toggleRules=()=>{
+
+  // Toggles the visibility of the rules pop-up
+  const toggleRules = () => {
     setshowRules(!showRules);
-  }
-  
+  };
+
+  // Fetches new quiz questions from the API
   const fetchQuestions = async () => {
-      try 
-      {
-        setLoading(true);
-        const res = await fetch(
-          "https://opentdb.com/api.php?amount=10&difficulty=medium&type=multiple"
-        );
-        const data = await res.json();
+    try {
+      setLoading(true);
+      const res = await fetch(
+        "https://opentdb.com/api.php?amount=10&difficulty=medium&type=multiple"
+      );
+      const data = await res.json();
 
-        if (data.response_code === 0) {
-          const formatted = data.results.map((item, index) => ({
-            index: index + 1,
-            question: decodeHtml(item.question),
-            answer: decodeHtml(item.correct_answer),
-          }));
-          setQues(formatted);
-          setError(null);
-        } else {
-          throw new Error("API returned no questions or error code.");
-        }
-      } catch (err)
-       {
-        setError("Failed to load quiz questions.");
-        console.error("Error fetching quiz questions:", err);
-       } finally 
-       {
-        setLoading(false);
-       }
-    };
+      if (data.response_code === 0 && data.results.length > 0) {
+        const formatted = data.results.map((item, index) => ({
+          index: index + 1,
+          question: decodeHtml(item.question),
+          answer: decodeHtml(item.correct_answer),
+        }));
+        setQues(formatted);
+        setError(null);
+      } else {
+        throw new Error("API returned no questions or an error code.");
+      }
+    } catch (err) {
+      setError("Failed to load quiz questions.");
+      console.error("Error fetching quiz questions:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  // Effects to run on component mount and score change
   useEffect(() => {
     fetchQuestions();
   }, []);
-  useEffect(() => {
-    if (score === 10) setIsWinner(true);
-  }, [score]);
 
-  const handleNextQuestion = () => {
-    if(currentIndex === ques.length - 1){
-      setIsQuizComplete(true);
+  useEffect(() => {
+    if (score === 10 && ques.length === 10) {
+      setIsWinner(true);
     }
-    else{
+  }, [score, ques]);
+
+  // Handles moving to the next question
+  const handleNextQuestion = () => {
+    // Reset state for the new question
+    resetForNewQuestion();
+    if (currentIndex === ques.length - 1) {
+      setIsQuizComplete(true);
+    } else {
       setCurrentIndex((prevIndex) => prevIndex + 1);
-      resetForNewQuestion();
     }
   };
   
-  const handleRestart= () => {
+  // Resets the quiz to the initial state and fetches new questions
+  const handleRestart = () => {
     setScore(0);
     setCurrentIndex(0);
     setUserAnswer("");
@@ -89,18 +100,21 @@ function App() {
     setIsInfo(null);
     setIsInfoLoading(false);
     setIsQuizComplete(false);
+    setUserAttempts([]);
+    setshowRules(true); // Show rules again on restart
     fetchQuestions();
+  };
 
-  }
-
-
+  // Handles moving to the previous question
   const handlePreviousQuestion = () => {
     if (currentIndex > 0) {
-      setCurrentIndex((prevIndex)=> prevIndex - 1);
+      setCurrentIndex((prevIndex) => prevIndex - 1);
+      // Optional: reset state for previous question, though not strictly needed for this app's logic
       resetForNewQuestion();
     }
   };
 
+  // Resets the UI state for a new question
   const resetForNewQuestion = () => {
     setUserAnswer("");
     setIsSubmitted(false);
@@ -108,80 +122,75 @@ function App() {
     setIsInfo(null);
   };
 
-  const InFoFetchedWikipedia= async (query)=>{
+  // Fetches additional information from Wikipedia
+  const fetchWikipediaInfo = async (query) => {
     setIsInfoLoading(true);
     setIsInfo(null);
     try {
       const apiUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(
         query
-      )}&format=json&origin=*&prop=extracts&exchars=500&explaintext`;
-      const res= await fetch(apiUrl);
-      const data= await res.json();
-      if(data.query.search.length>0)
-      {
-        const firstResultTitle=data.query.search[0].title;
-        const extractUrl=`https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exchars=500&titles=${encodeURIComponent(firstResultTitle)}&format=json&origin=*&explaintext`;
+      )}&format=json&origin=*`;
+      const res = await fetch(apiUrl);
+      const data = await res.json();
 
-        const extractRes= await fetch(extractUrl);
-        const extractData= await extractRes.json();
+      if (data.query.search.length > 0) {
+        const firstResultTitle = data.query.search[0].title;
+        const extractUrl = `https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exchars=500&titles=${encodeURIComponent(firstResultTitle)}&format=json&origin=*&explaintext`;
 
-        const extractPages=extractData.query.pages;
-        const pageId= Object.keys(extractPages)[0];
+        const extractRes = await fetch(extractUrl);
+        const extractData = await extractRes.json();
+        const extractPages = extractData.query.pages;
+        const pageId = Object.keys(extractPages)[0];
 
-
-        if(pageId && extractPages[pageId].extract){
-        setIsInfo(extractPages[pageId].extract);
+        if (pageId && extractPages[pageId].extract) {
+          setIsInfo(extractPages[pageId].extract);
+        } else {
+          setIsInfo("No detailed information available on Wikipedia.");
         }
-        else{
-          setIsInfo("No  detailed information available on Wikipedia.");
-        }
-      }
-      else{
+      } else {
         setIsInfo("No information available on Wikipedia.");
       }
-      
     } catch (error) {
-      console.error("OOPS!! Error in fetching data from Wikipedia..", error);
+      console.error("Error in fetching data from Wikipedia:", error);
       setIsInfo("Failed to fetch data from Wikipedia.");
-      
-    }
-    finally{
+    } finally {
       setIsInfoLoading(false);
     }
-  }
+  };
 
-  const UserInput = (event) => {
+  // Handles the user's input change
+  const handleUserInput = (event) => {
     setUserAnswer(event.target.value);
   };
 
-  const handleChangeSubmit = (event) => {
+  // Handles form submission and checks the answer
+  const handleSubmit = (event) => {
     event.preventDefault();
     setIsSubmitted(true);
     const isCorrect = userAnswer.trim().toLowerCase() === ques[currentIndex].answer.toLowerCase();
-    const attempts=
-    {
+
+    const newAttempt = {
       questionIndex: currentIndex,
       userAnswer: userAnswer,
-      correct: isCorrect,
-      correct_answer: ques[currentIndex].answer
-    }
+      isCorrect: isCorrect,
+      correct_answer: ques[currentIndex].answer,
+    };
 
-    setUserAttempts(prevAtempts => [...prevAtempts, attempts]);
+    setUserAttempts((prevAttempts) => [...prevAttempts, newAttempt]);
     
-    if (
-      isCorrect
-    ) {
+    if (isCorrect) {
       setMessage("✅ Correct!");
       setScore((prev) => prev + 1);
-      InFoFetchedWikipedia(ques[currentIndex].answer)
+      fetchWikipediaInfo(ques[currentIndex].answer);
     } else {
       setMessage(
         `❌ Incorrect! The correct answer is ${ques[currentIndex].answer}.`
       );
-      InFoFetchedWikipedia(ques[currentIndex].question)
+      fetchWikipediaInfo(ques[currentIndex].question);
     }
   };
 
+  // Render loading state
   if (loading) {
     return (
       <div className="p-8 text-center text-2xl font-semibold text-gray-700 animate-pulse">
@@ -190,15 +199,16 @@ function App() {
     );
   }
 
-  if (error)
-    {
-      return (
-        <div className="p-8 text-center text-red-500 font-medium text-lg">
-          {error}
-        </div>
-      );
-    }
+  // Render error state
+  if (error) {
+    return (
+      <div className="p-8 text-center text-red-500 font-medium text-lg">
+        {error}
+      </div>
+    );
+  }
 
+  // Main application rendering
   return (
     // Step 1: Check if rules should be shown
     showRules ? (
@@ -239,7 +249,7 @@ function App() {
                     Your Answer: <span className="font-medium">{attempt.userAnswer}</span>
                   </p>
                   <p className="mt-1">
-                    Correct Answer: <span className="font-medium">{attempt.correctAnswer}</span>
+                    Correct Answer: <span className="font-medium">{attempt.correct_answer}</span>
                   </p>
                   <p className="mt-2 font-bold" style={{ color: attempt.isCorrect ? '#16a34a' : '#ef4444' }}>
                     {attempt.isCorrect ? 'Correct ✅' : 'Incorrect ❌'}
@@ -292,11 +302,11 @@ function App() {
                     {ques[currentIndex].question}
                   </p>
                   <div className="mt-4">
-                    <form onSubmit={handleChangeSubmit} className="flex flex-col sm:flex-row gap-3">
+                    <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
                       <input
                         type="text"
                         value={userAnswer}
-                        onChange={UserInput}
+                        onChange={handleUserInput}
                         disabled={isSubmitted}
                         placeholder="Type your answer"
                         className="flex-1 p-3 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-200"
