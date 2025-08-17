@@ -1,6 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 
-
+const QUIZ_RULES = [
+  "You will be presented with a series of 10 questions.",
+  "Type your answer in the input box and click 'Submit'.",
+  "You can navigate through questions using the 'Next' and 'Previous' buttons.",
+  "Your score is calculated based on correct answers.",
+  "Additional information about the answer will be shown after submission.",
+];
 function App() {
   const [score, setScore] = useState(0);
   const [ques, setQues] = useState([]);
@@ -14,6 +20,8 @@ function App() {
   const [isInfo,setIsInfo]=useState(null);
   const [isInfoLoading, setIsInfoLoading]=useState(false);
   const [showRules,setshowRules]=useState(true);
+  const [userAttempts,setUserAttempts]=useState([]);
+  const [isQuizComplete, setIsQuizComplete]=useState(false);
   const decodeHtml = (html) => {
     const txt = document.createElement("textarea");
     txt.innerHTML = html;
@@ -23,10 +31,10 @@ function App() {
   const toggleRules=()=>{
     setshowRules(!showRules);
   }
-
-  useEffect(() => {
-    const fetchQuestions = async () => {
-      try {
+  
+  const fetchQuestions = async () => {
+      try 
+      {
         setLoading(true);
         const res = await fetch(
           "https://opentdb.com/api.php?amount=10&difficulty=medium&type=multiple"
@@ -44,13 +52,17 @@ function App() {
         } else {
           throw new Error("API returned no questions or error code.");
         }
-      } catch (err) {
+      } catch (err)
+       {
         setError("Failed to load quiz questions.");
         console.error("Error fetching quiz questions:", err);
-      } finally {
+       } finally 
+       {
         setLoading(false);
-      }
+       }
     };
+
+  useEffect(() => {
     fetchQuestions();
   }, []);
   useEffect(() => {
@@ -62,7 +74,25 @@ function App() {
       setCurrentIndex((prevIndex)=> prevIndex + 1);
       resetForNewQuestion();
     }
+    else {
+      setIsQuizComplete(true);
+    }
   };
+  
+  const handleRestart= () => {
+    setScore(0);
+    setCurrentIndex(0);
+    setUserAnswer("");
+    setIsSubmitted(false);
+    setIsWinner(false);
+    setMessage("");
+    setIsInfo(null);
+    setIsInfoLoading(false);
+    setIsQuizComplete(false);
+    fetchQuestions();
+
+  }
+
 
   const handlePreviousQuestion = () => {
     if (currentIndex > 0) {
@@ -128,6 +158,16 @@ function App() {
     event.preventDefault();
     setIsSubmitted(true);
     const isCorrect = userAnswer.trim().toLowerCase() === ques[currentIndex].answer.toLowerCase();
+    const attempts=
+    {
+      questionIndex: currentIndex,
+      userAnswer: userAnswer,
+      correct: isCorrect,
+      correct_answer: ques[currentIndex].answer
+    }
+
+    setUserAttempts(prevAtempts => [...prevAtempts, attempts]);
+    
     if (
       isCorrect
     ) {
@@ -160,137 +200,168 @@ function App() {
     }
 
   return (
-    <div className="w-full flex flex-col items-center p-6 bg-gradient-to-br from-gray-50 to-gray-200 min-h-screen">
-      <div className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-3xl border border-gray-100">
-        <h1 className="text-4xl font-extrabold text-center text-indigo-600 mb-6 tracking-tight">
-          🚀 Modern Quiz App
-        </h1>
-        {showRules && (
-          <div className="fixed inset-0 bg-gray-900 bg-opacity-75 flex justify-center items-center z-50 animate-fadeIn">
-            <div className="bg-white p-8 rounded-lg shadow-2xl w-full max-w-md mx-4 transform scale-100 animate-slideUp">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">
-                Game Rules 📝
-              </h2>
-              <ul className="list-disc list-inside text-gray-700 space-y-2">
-                <li>
-                  You will be presented with a series of 10 questions.
-                </li>
-                <li>
-                  Type your answer in the input box and click "Submit".
-                </li>
-                <li>
-                  You can navigate through questions using the "Next" and "Previous" buttons.
-                </li>
-                <li>
-                  Your score is calculated based on correct answers.
-                </li>
-                <li>
-                  Additional information about the answer will be shown after submission.
-                </li>
-              </ul>
-              <button
-                onClick={toggleRules}
-                className="mt-6 w-full py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 transition-colors"
-              >
-                Start Quiz!
-              </button>
-            </div>
-          </div>
-        )}
-        <div id="question-box" className="space-y-6">
-          {isWinner && (
-            <div className="text-center text-3xl font-bold text-green-600 my-4">
-              🎉 Congratulations, you won!
-            </div>
-          )}
-
-          <div className="h-auto bg-white shadow-md rounded-xl p-6 border border-gray-100 transition-all">
-            <h1 className="text-lg font-semibold text-gray-700 mb-4">
-              Question & Answer Box
-            </h1>
-            
-            {ques.length > 0 && (
-              <div 
-              key={currentIndex}
-              className="bg-gray-50 border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-all duration-300 animate-fadeIn">
-                <h2 className="text-lg font-bold text-gray-800 mb-2">
-                  Question {ques[currentIndex].index}
-                </h2>
-                <p className="text-gray-700 leading-relaxed">
-                  {ques[currentIndex].question}
-                </p>
-                <div className="mt-4">
-                  <form onSubmit={handleChangeSubmit} className="flex flex-col sm:flex-row gap-3">
-                    <input
-                      type="text"
-                      value={userAnswer}
-                      onChange={UserInput}
-                      disabled={isSubmitted}
-                      placeholder="Type your answer"
-                      className="flex-1 p-3 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-200"
-                    />
-                    <button
-                      type="submit"
-                      disabled={isSubmitted}
-                      className={`py-2 px-6 rounded-lg shadow-md transition-all duration-300 ${
-                        isSubmitted
-                          ? "bg-gray-300 cursor-not-allowed"
-                          : "bg-indigo-500 hover:bg-indigo-600 text-white"
-                      }`}
-                    >
-                      Submit
-                    </button>
-                  </form>
+    // Step 1: Check if rules should be shown
+    showRules ? (
+      <div className="fixed inset-0 bg-gray-900 bg-opacity-75 flex justify-center items-center z-50 animate-fadeIn">
+        <div className="bg-white p-8 rounded-lg shadow-2xl w-full max-w-md mx-4 transform scale-100 animate-slideUp">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">
+            Game Rules 📝
+          </h2>
+          <ul className="list-disc list-inside text-gray-700 space-y-2">
+            {QUIZ_RULES.map((rule, index) => (
+              <li key={index}>{rule}</li>
+            ))}
+          </ul>
+          <button
+            onClick={toggleRules}
+            className="mt-6 w-full py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 transition-colors"
+          >
+            Start Quiz!
+          </button>
+        </div>
+      </div>
+    ) : // Step 2: If rules are not shown, check if the quiz is complete
+    isQuizComplete ? (
+      <div className="w-full flex flex-col items-center p-6 bg-gradient-to-br from-gray-50 to-gray-200 min-h-screen">
+        <div className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-3xl border border-gray-100">
+          <h1 className="text-4xl font-extrabold text-center text-indigo-600 mb-6 tracking-tight">
+            🚀 Modern Quiz App
+          </h1>
+          <div className="summary-box p-6 bg-white rounded-lg shadow-md animate-fadeIn">
+            <h2 className="text-2xl font-bold text-center mb-4">Quiz Complete!</h2>
+            <p className="text-xl font-semibold text-center mb-6">Your final score: {score} out of {ques.length}</p>
+            <div className="space-y-4">
+              {userAttempts.map((attempt, index) => (
+                <div key={index} className="p-4 rounded-lg" style={{ backgroundColor: attempt.isCorrect ? '#dcfce7' : '#fee2e2' }}>
+                  <p className="font-bold">Question {attempt.questionIndex + 1}:</p>
+                  <p>{ques[attempt.questionIndex].question}</p>
+                  <p className="mt-2">
+                    Your Answer: <span className="font-medium">{attempt.userAnswer}</span>
+                  </p>
+                  <p className="mt-1">
+                    Correct Answer: <span className="font-medium">{attempt.correctAnswer}</span>
+                  </p>
+                  <p className="mt-2 font-bold" style={{ color: attempt.isCorrect ? '#16a34a' : '#ef4444' }}>
+                    {attempt.isCorrect ? 'Correct ✅' : 'Incorrect ❌'}
+                  </p>
                 </div>
-                {message && (
-                  <div className="mt-4 p-3 rounded-lg text-center font-semibold text-white bg-indigo-500">
-                    {message}
-                  </div>
-                )}
-                {isSubmitted && (
-                  <div className="mt-4 p-3 rounded-lg bg-gray-200 text-gray-700 font-medium animate-fadeIn">
-                    {isInfoLoading ? (
-                      <p className=" animate-pulse">Loading additional info...</p>
-                    ) : (
-                      <p>{isInfo}</p>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
-
-            <p className="mt-6 text-lg font-semibold text-indigo-700">
-              Score: {score}
-            </p>
-
-            <div className="flex flex-col sm:flex-row justify-between gap-4 mt-6">
+              ))}
+            </div>
+            <div className="text-center mt-6">
               <button
-                onClick={handlePreviousQuestion}
-                disabled={currentIndex === 0}
-                className={`py-2 px-5 rounded-lg transition-all ${
-                  currentIndex === 0
-                    ? "bg-gray-300 cursor-not-allowed"
-                    : "bg-indigo-500 hover:bg-indigo-600 text-white shadow-md"
-                }`}
+                onClick={handleRestart}
+                className="py-2 px-5 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white shadow-md transition-all"
               >
-                ⬅ Previous
-              </button>
-              <button
-                onClick={handleNextQuestion}
-                disabled={currentIndex === ques.length - 1}
-                className={`py-2 px-5 rounded-lg transition-all ${
-                  currentIndex === ques.length - 1
-                    ? "bg-gray-300 cursor-not-allowed"
-                    : "bg-indigo-500 hover:bg-indigo-600 text-white shadow-md"
-                }`}
-              >
-                Next ➡
+                Restart Quiz
               </button>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    ) : (
+      // Step 3: Otherwise, render the main quiz view
+      <div className="w-full flex flex-col items-center p-6 bg-gradient-to-br from-gray-50 to-gray-200 min-h-screen">
+        <div className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-3xl border border-gray-100">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-4xl font-extrabold text-indigo-600 tracking-tight">
+              🚀 Modern Quiz App
+            </h1>
+            <button
+              onClick={toggleRules}
+              className="py-2 px-4 text-sm font-semibold text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+            >
+              Rules
+            </button>
+          </div>
+          {isWinner && (
+            <div className="text-center text-3xl font-bold text-green-600 my-4">
+              🎉 Congratulations, you won!
+            </div>
+          )}
+          <div id="question-box" className="space-y-6">
+            <div className="h-auto bg-white shadow-md rounded-xl p-6 border border-gray-100 transition-all">
+              <h1 className="text-lg font-semibold text-gray-700 mb-4">
+                Question & Answer Box
+              </h1>
+              {ques.length > 0 && (
+                <div key={currentIndex} className="bg-gray-50 border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-all duration-300 animate-fadeIn">
+                  <h2 className="text-lg font-bold text-gray-800 mb-2">
+                    Question {ques[currentIndex].index}
+                  </h2>
+                  <p className="text-gray-700 leading-relaxed">
+                    {ques[currentIndex].question}
+                  </p>
+                  <div className="mt-4">
+                    <form onSubmit={handleChangeSubmit} className="flex flex-col sm:flex-row gap-3">
+                      <input
+                        type="text"
+                        value={userAnswer}
+                        onChange={UserInput}
+                        disabled={isSubmitted}
+                        placeholder="Type your answer"
+                        className="flex-1 p-3 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-200"
+                      />
+                      <button
+                        type="submit"
+                        disabled={isSubmitted || isInfoLoading}
+                        className={`py-2 px-6 rounded-lg shadow-md transition-all duration-300 ${
+                          isSubmitted || isInfoLoading
+                            ? "bg-gray-300 cursor-not-allowed text-gray-700"
+                            : "bg-indigo-500 hover:bg-indigo-600 text-white"
+                        }`}
+                      >
+                        {isSubmitted && isInfoLoading ? "Loading..." : "Submit"}
+                      </button>
+                    </form>
+                  </div>
+                  {message && (
+                    <div className="mt-4 p-3 rounded-lg text-center font-semibold text-white bg-indigo-500">
+                      {message}
+                    </div>
+                  )}
+                  {isSubmitted && (
+                    <div className="mt-4 p-3 rounded-lg bg-gray-200 text-gray-700 font-medium animate-fadeIn">
+                      {isInfoLoading ? (
+                        <p className=" animate-slideDown">Loading additional info...</p>
+                      ) : (
+                        <p>{isInfo}</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+              <p className="mt-6 text-lg font-semibold text-indigo-700">
+                Score: {score}
+              </p>
+              <div className="flex flex-col sm:flex-row justify-between gap-4 mt-6">
+                <button
+                  onClick={handlePreviousQuestion}
+                  disabled={currentIndex === 0}
+                  className={`py-2 px-5 rounded-lg transition-all ${
+                    currentIndex === 0
+                      ? "bg-gray-300 cursor-not-allowed"
+                      : "bg-indigo-500 hover:bg-indigo-600 text-white shadow-md"
+                  }`}
+                >
+                  ⬅ Previous
+                </button>
+                <button
+                  onClick={handleNextQuestion}
+                  disabled={currentIndex === ques.length - 1}
+                  className={`py-2 px-5 rounded-lg transition-all ${
+                    currentIndex === ques.length - 1
+                      ? "bg-gray-300 cursor-not-allowed"
+                      : "bg-indigo-500 hover:bg-indigo-600 text-white shadow-md"
+                  }`}
+                >
+                  Next ➡
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   );
 }
 
