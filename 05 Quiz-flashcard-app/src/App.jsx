@@ -284,6 +284,110 @@ function SummaryView({
     </div>
   );
 }
+function App() {
+  const {
+    score,
+    ques,
+    userAnswer,
+    currentIndex,
+    isSubmitted,
+    isQuizComplete,
+    userAttempts,
+    isWinner,
+    loading,
+    error,
+    message,
+    isInfo,
+    isInfoLoading,
+    showRules,
+    hasExited,
+    answeredQuestions,
+    warningMessage,
+    warningCount,
+    reviewingQuestionIndex,
+    timeLeft,
+    skippedQuestions,
+    setUserAnswer,
+    setReviewingQuestionIndex,
+    setShowRules,
+    setHasExited,
+    handleExit,
+    handleNextQuestion,
+    handleRestart,
+    handlePreviousQuestion,
+    handleUserInput,
+    handleSubmit,
+    handleSkip,
+  } = useQuizLogic();
+
+  if (loading) {
+    return (
+      <div className="p-8 text-center text-2xl font-semibold text-gray-700 animate-pulse">
+        Loading questions...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-8 text-center text-red-500 font-medium text-lg">{error}</div>
+    );
+  }
+
+  if (hasExited) {
+    return <ExitMessage />;
+  }
+
+  if (showRules) {
+    return <RulesModal onStart={() => setShowRules(false)} />;
+  }
+
+  if (isQuizComplete) {
+    return (
+      <SummaryView
+        score={score}
+        userAttempts={userAttempts}
+        setUserAttempts={setUserAttempts}
+        onRestart={handleRestart}
+        reviewingQuestionIndex={reviewingQuestionIndex}
+        setReviewIndex={setReviewingQuestionIndex}
+        onViewRules={() => setShowRules(true)}
+        onExit={handleExit}
+        hasExitedEarly={hasExited}
+        isInfoLoading={isInfoLoading}
+        setIsInfoLoading={setIsInfoLoading}
+      />
+    );
+  }
+
+  return (
+    <QuizView
+      isWinner={isWinner}
+      ques={ques}
+      currentIndex={currentIndex}
+      score={score}
+      message={message}
+      userAnswer={userAnswer}
+      handleSubmit={handleSubmit}
+      handleUserInput={handleUserInput}
+      handleNextQuestion={handleNextQuestion}
+      handlePreviousQuestion={handlePreviousQuestion}
+      handleSkip={handleSkip}
+      isSubmitted={isSubmitted}
+      isInfo={isInfo}
+      isInfoLoading={isInfoLoading}
+      answeredQuestions={answeredQuestions}
+      skippedQuestions={skippedQuestions}
+      warningMessage={warningMessage}
+      warningCount={warningCount}
+      onViewRules={() => setShowRules(true)}
+      onExit={handleExit}
+      timeLeft={timeLeft}
+    />
+  );
+}
+
+export default App;
 
 // You need to define and properly pass the following props in your App and useQuizLogic:
 // - setUserAttempts
