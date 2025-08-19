@@ -6,8 +6,9 @@ const QUIZ_RULES = [
   "You will be presented with a series of 10 questions.",
   "Type your answer in the input box and click 'Submit'.",
   "You can navigate through questions using the 'Next' and 'Previous' buttons.",
+  "You can Skip the Question if you want to..",
   "Your score is calculated based on correct answers.",
-  "Additional information about the answer will be shown after submission.",
+  "Additional information about the answer will be shown after quiz ended.",
   "You will be shown your final score at the end of the quiz.",
   "You cannot switch between tabs once the quiz has started.",
   "If the Switch Count reached 3, the quiz will end.",
@@ -24,7 +25,7 @@ const decodeHtml = (html) => {
 const fetchQuizQuestions = async () => {
   try {
     const res = await fetch(
-      "https://opentdb.com/api.php?amount=10&difficulty=medium&type=multiple"
+      "https://opentdb.com/api.php?amount=10&category=18&difficulty=easy&type=multiple"
     );
     if (!res.ok) throw new Error("Network response was not ok");
     const data = await res.json();
